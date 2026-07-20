@@ -1,0 +1,6 @@
+package com.myproject.razorpay.common.enums;
+
+public enum Environment {
+    LIVE,
+    TEST
+}

@@ -18,8 +18,8 @@ Thumbs.db
 .env
 
 # Application secrets
-application-local.yml
-application-local.properties
+application.yml
+application.properties
 
 # Maven Wrapper (optional)
 !.mvn/wrapper/maven-wrapper.jar
