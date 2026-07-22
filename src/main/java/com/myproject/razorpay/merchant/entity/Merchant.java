@@ -4,12 +4,18 @@ package com.myproject.razorpay.merchant.entity;
 import com.myproject.razorpay.common.enums.BusinessType;
 import com.myproject.razorpay.common.enums.MerchantStatus;
 import jakarta.persistence.*;
+import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "merchant")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Merchant {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

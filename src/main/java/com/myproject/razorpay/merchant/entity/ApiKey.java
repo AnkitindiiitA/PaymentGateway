@@ -2,11 +2,17 @@ package com.myproject.razorpay.merchant.entity;
 
 import com.myproject.razorpay.common.enums.Environment;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "api_key")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class ApiKey {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -30,6 +36,7 @@ public class ApiKey {
     private Environment environment;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean enabled = true;
 
 
