@@ -11,6 +11,6 @@ public class InvalidStateTransitionException extends RuntimeException {
     public InvalidStateTransitionException(String fromState, String event) {
         super("Invalid transition from "+fromState+" with event "+event);
         this.fromState = fromState;
-        this.toState = event;
+        this.toEvent = event;
     }
 }
