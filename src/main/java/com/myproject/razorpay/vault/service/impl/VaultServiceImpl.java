@@ -15,6 +15,8 @@ import com.myproject.razorpay.vault.entity.VaultCard;
 import com.myproject.razorpay.vault.repository.CardTokenRepository;
 import com.myproject.razorpay.vault.repository.VaultCardRepository;
 import com.myproject.razorpay.vault.service.VaultService;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.encrypt.BytesEncryptor;
@@ -76,7 +78,7 @@ public class VaultServiceImpl implements VaultService {
     @Override
     public PaymentProcessorResponse charge(UUID paymentId,String token, Money amount, Map<String, Object> methodDetails) {
 
-        CardToken cardToken = cardTokenRepository.findByTokenAndRevokeAtIsNull(token)
+        CardToken cardToken = cardTokenRepository.findByTokenAndRevokedAtIsNull(token)
                 .orElseThrow(() -> new ResourceNotFoundException("CardToken",token));
 
         VaultCard vaultCard = cardToken.getVaultCard();

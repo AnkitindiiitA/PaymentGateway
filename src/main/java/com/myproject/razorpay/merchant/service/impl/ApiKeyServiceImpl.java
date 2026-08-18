@@ -11,6 +11,7 @@ import com.myproject.razorpay.merchant.mapper.ApiKeyMapper;
 import com.myproject.razorpay.merchant.repository.ApiKeyRepository;
 import com.myproject.razorpay.merchant.repository.MerchantRepository;
 import com.myproject.razorpay.merchant.service.ApiKeyService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ public class ApiKeyServiceImpl implements ApiKeyService {
     private final MerchantRepository merchantRepository;
     private final ApiKeyRepository apiKeyRepository;
     private final ApiKeyMapper apiKeyMapper;
+    private final BCryptPasswordEncoder BCRYPT = new BCryptPasswordEncoder();
 
     @Override
     @Transactional
@@ -36,12 +38,12 @@ public class ApiKeyServiceImpl implements ApiKeyService {
                 orElseThrow(() -> new ResourceNotFoundException("merchant", merchantId));
 
         String keyId = "rzp_" + request.environment().name().toLowerCase() + "_" + RandomizerUtil.randomBase64(24);
-        String rawSecret = RandomizerUtil.randomBase64(40); //Todo replace with cryptography hex
+        String rawSecret = RandomizerUtil.randomBase64(40);
 
         ApiKey apiKey = ApiKey.builder()
                 .merchant(merchant)
                 .keyId(keyId)
-                .keySecretHash(rawSecret) //todo: encode with bcryptPasswordencoder
+                .keySecretHash(BCRYPT.encode(rawSecret))
                 .environment(request.environment())
                 .build();
 
@@ -79,10 +81,10 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 
         if(!apiKey.isEnabled()) throw new RuntimeException("Cannot rotate a disabled key");
 
-        String newRawSecret = RandomizerUtil.randomBase64(40); //Todo replace with cryptography hex
+        String newRawSecret = RandomizerUtil.randomBase64(40);
 
         apiKey.setPreviousKeySecretHash(apiKey.getKeySecretHash());
-        apiKey.setKeySecretHash(newRawSecret);
+        apiKey.setKeySecretHash(BCRYPT.encode(newRawSecret));
 
         apiKey.setRotatedAt(LocalDateTime.now());
         apiKey.setGracePeriodExpiresAt(LocalDateTime.now().plusHours(24));

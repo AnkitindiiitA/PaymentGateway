@@ -10,11 +10,11 @@ public record TokenizeRequest(
 
         @NotBlank(message = "PAN is required")
         @LuhnCheck(message = "Invalid card number")
-        @Pattern(regexp = "^[0,9]{13,19}$", message = "PAN length is invalid")
+        @Pattern(regexp = "^[0-9]{13,19}$", message = "PAN length is invalid")
         String pan,
 
         @NotBlank(message = "CVV is required")
-        @Pattern(regexp = "^[0,9]{3,4}$", message = "CVV length is invalid")
+        @Pattern(regexp = "^[0-9]{3,4}$", message = "CVV length is invalid")
         String cvv,
 
         @NotNull(message = "Expiry month is required")

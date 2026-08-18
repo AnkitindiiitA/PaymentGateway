@@ -3,9 +3,12 @@ package com.myproject.razorpay.payment.statemachine;
 import com.myproject.razorpay.common.enums.PaymentEvent;
 import com.myproject.razorpay.common.enums.PaymentStatus;
 import com.myproject.razorpay.common.exception.InvalidStateTransitionException;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+@Component
 public class PaymentStateMachine {
 
     private record Transition(PaymentStatus from, PaymentEvent event){};

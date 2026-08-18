@@ -18,7 +18,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 vault:
-  master-key: eheify83478t340hgf38ryg9yrgr5g8238cb8yfc8y59c58fhhgi458yt9bxcwedc
+  master-key: N/dfjQMwTh/T1bvfpCMQq0yMHsFtOCIkrCPOAEiFH68=
 
 payment:
   simulator:
@@ -38,4 +38,5 @@ payment:
         max-delay-seconds: 10
         success-rate: 80
 
-
+jwt:
+  secret-key: dont-use-in-produfgy87ttyvn85y489tyvn8wy4e95vncugcnwjiofgj953w009tu5098t8t589vn58

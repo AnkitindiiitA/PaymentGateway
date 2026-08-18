@@ -1,6 +1,8 @@
 package com.myproject.razorpay.payment.simulator;
 
+import com.myproject.razorpay.common.enums.ChaosMode;
 import com.myproject.razorpay.common.enums.PaymentStatus;
+import com.myproject.razorpay.common.util.RandomizerUtil;
 import com.myproject.razorpay.payment.entity.Payment;
 import com.myproject.razorpay.payment.repository.PaymentRepository;
 import com.myproject.razorpay.payment.service.PaymentService;
@@ -21,13 +23,15 @@ public class BankCallbackSimulator {
     private final PaymentService paymentService;
     private final SimulatorConfig simulatorConfig;
 
-    @Scheduled(fixedRateString = "${payment.simulator.poll-interval-ms:5000}")
+//    @Scheduled(fixedRateString = "${payment.simulator.poll-interval-ms:5000}")
     public void processCallbacks(){
 
         LocalDateTime globalWindow = LocalDateTime.now().minusSeconds(1);
 
         List<Payment> candidates = paymentRepository
                 .findByStatusAndCreatedAtBefore(PaymentStatus.AUTHORIZING, globalWindow);
+
+        log.info("Simulating payments for {} payments",candidates.size());
 
         if(candidates.isEmpty()) return;
 
@@ -36,7 +40,52 @@ public class BankCallbackSimulator {
         }
     }
 
+
     private void simulateCallback(Payment payment) {
+        SimulatorConfig.MethodSimulatorConfig methodConfig = simulatorConfig.configFor(payment.getMethod());
+
+        LocalDateTime dueAt = dueAt(payment, methodConfig);
+
+        if(LocalDateTime.now().isBefore(dueAt)){
+            return;
+        }
+
+        ChaosMode chaosMode = simulatorConfig.getChaosMode();
+
+        switch (chaosMode){
+            case SUCCESS -> resolve(payment, true);
+            case FAILURE -> resolve(payment, false);
+            case TIMEOUT -> {
+                log.debug("BankCallBack simulator: Payment Timed out");
+            }
+            case NORMAL,SLOW -> resolve(payment, shouldApprove(payment, methodConfig));
+        }
+
+    }
+
+    private void resolve(Payment payment, boolean approve){
+        if(approve){
+            String bankRef = "SIM_BANK_REF" + RandomizerUtil.randomBase64(8);
+            paymentService.resolveAuthorization(payment.getId(), true, bankRef, null, null);
+        } else{
+            paymentService.resolveAuthorization(payment.getId(), false, null, "SIM_BANK_ERROR_CODE","Simulated Bank Declined");
+        }
+    }
+
+    private boolean shouldApprove(Payment payment, SimulatorConfig.MethodSimulatorConfig methodConfig){
+        int bucket = Math.abs(payment.getId().hashCode())%100;
+        return bucket < methodConfig.getSuccessRate();
+    }
+
+    private LocalDateTime dueAt(Payment payment, SimulatorConfig.MethodSimulatorConfig methodConfig){
+        int range = methodConfig.getMaxDelaySeconds() - methodConfig.getMinDelaySeconds();
+        int delaySeconds = methodConfig.getMinDelaySeconds() + Math.abs(payment.getId().hashCode())%(range+1);
+
+        if(simulatorConfig.getChaosMode() == ChaosMode.SLOW){
+            delaySeconds *= 2;
+        }
+
+        return payment.getCreatedAt().plusSeconds(delaySeconds);
     }
 
 

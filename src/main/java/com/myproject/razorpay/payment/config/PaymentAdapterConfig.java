@@ -21,7 +21,7 @@ public class PaymentAdapterConfig {
     private final UpiPaymentAdapter upiPaymentAdapter;
 
     @Bean
-    Map<PaymentMethod, PaymentAdapter> paymentAdapterMap(){
+    public Map<PaymentMethod, PaymentAdapter> paymentAdapterMap(){
         return Map.of(
                 PaymentMethod.CARD, cardPaymentAdapter,
                 PaymentMethod.NETBANKING, netBankingAdapter,
